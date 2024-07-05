@@ -1,2 +1,3 @@
 # itk3
-school project
+# school project
+names: marie-luise wolff, vahan velunz, jonah lüdemann
