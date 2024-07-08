@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benutzer Alter Aktualisieren</title>
+</head>
+<body>
+    <h1>Alter eines Benutzers aktualisieren</h1>
+    <form action="/cgi-bin/05_update_customer_cgi.py" method="post">
+        <label for="customer_id">Benutzer ID:</label><br>
+        <input type="number" id="customer_id" name="customer_id" required><br><br>
+        <label for="new_age">Neues Alter:</label><br>
+        <input type="number" id="new_age" name="new_age" required><br><br>
+        <input type="submit" value="Aktualisieren">
+    </form>
+</body>
+</html>
