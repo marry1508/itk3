@@ -20,7 +20,7 @@ create table mietvorgang (
 	mietvorgang_ID		integer auto_increment not null,
     scooter_ID			integer not null,
     kunden_ID			integer not null,
-    startzeit			datetime not null,
+    startzeit			datetime,
     endzeit				datetime,
     strecke				decimal(10,2),
     preis				decimal(10,2),
