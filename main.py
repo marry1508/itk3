@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import *
 
 # Variablen definieren
-MYSQL_ROOT_PASSWORD="root"
+MYSQL_ROOT_PASSWORD="root" ########PASS ÄNDERN
 MYSQL_DATABASE="scootech"
 MYSQL_USER="root"
 HOST='localhost'
