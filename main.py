@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import *
 
 # Variablen definieren
-MYSQL_ROOT_PASSWORD="passwort"
+MYSQL_ROOT_PASSWORD="root"
 MYSQL_DATABASE="scootech"
 MYSQL_USER="root"
 HOST='localhost'
@@ -20,9 +20,10 @@ def neuerKunde(vorname,nachname):
 
 # Einen neuen Kunden mit Eingaben aus der Konsole anlegen
 def neuerKundeKonsole():
-    vorname = input("Wie lautet der Vorname?")
-    nachname = input("Wie lautet der Nachname?")
+    vorname = input("What is your first name? ")
+    nachname = input("What is your last name? ")
     neuerKunde(vorname,nachname)
+    print("\nNew customer created!\n")
 
 # Alle Kundeneinträge aus der Datenbank ausgeben
 def kundenAusgeben():
@@ -47,10 +48,11 @@ def neuerEscooter(standort,mietpreis_strecke,mietpreis_zeit):
 
 # Einen neuen Escooter mit Eingaben aus der Konsole anlegen
 def neuerEscooterKonsole():
-    standort = input("Wo ist der Escooter?")
-    mietpreis_strecke = input("Wie teuer pro Kilometer?")
-    mietpreis_zeit = input("Wie teuer pro Minute?")
+    standort = input("Where is the scooter located? Input the city name: ") #viell. noch dynamisch die Städte anzeigen
+    mietpreis_strecke = input("Price per Kilometer? In EUR: ")
+    mietpreis_zeit = input("Price per Minute? In EUR: ")
     neuerEscooter(standort,mietpreis_strecke,mietpreis_zeit)
+    print("\nNew scooter added!\n")
 
 # Alle Escootereinträge aus der Datenbank ausgeben
 def escooterAusgeben():
@@ -67,42 +69,42 @@ def escooterAusgeben():
 
 
 def fahrpreisBerechnen():
-    scooterID = input("Welche ScooterID?")
+    scooterID = input("Input ScooterID: ")
     while True:
-        bezahlart = input("Welche Bezahlart? km oder min ")
+        bezahlart = input("Kilometer (km) or minute (min) price? ")
         if bezahlart == "km":
             c.execute(f"select mietpreis_strecke from escooter where scooter_ID = {scooterID}")
             preis = c.fetchone()
-            strecke = Decimal(input("Wie weit fährst du? "))
+            strecke = Decimal(input("How far are you traveling? Please input in km or min as previously selected: "))
             endpreis = round(preis[0] * strecke,2)
             return endpreis
         elif bezahlart == "min":
             c.execute(f"select mietpreis_zeit from escooter where scooter_ID = {scooterID}")
             preis = c.fetchone()
-            zeit = Decimal(input("Wie lange möchtest du den Scooter mieten? "))
+            zeit = Decimal(input("How long would you like to rent the scooter for? "))
             endpreis = round(preis[0] * zeit,2)
             return endpreis
         else:
-            print("Ungültige Eingabe")
+            print("Invalid entry. Please try again.")
 
 # Einen neuen Mietvorgang in der Datenbank anlegen
 def neuerMietvorgang():
-    scooterID = input("Welche Scooter ID?")
-    kundenID = input("Wie lautet deine KundenID?")
+    scooterID = input("Which scooter would you like to rent? Please input the scooter ID: ")
+    kundenID = input("Who is the customer? Please input the customer ID: ")
     # Aktuelles Datum + Uhrzeit in Variable speichern und für Datenbank passend formatieren
     startzeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     while True:
-        bezahlart = input("Möchtest du pro Kilometer oder pro Minute bezahlen?")
+        bezahlart = input("Would you like to pay per kilometer (km) or per minute (min)? ")
         # Je nach gewünschter Bezahlart den entsprechenden Preis berechnen und Mietvorgang in die Datenbank eintragen
         if bezahlart == "km":
-            strecke = Decimal(input("Wie weit fährst du?"))
+            strecke = Decimal(input("Please enter the distance / duration of your travel, based on your previous input: "))
             c.execute(f"select mietpreis_strecke from escooter where scooter_ID = {scooterID}")
             preis = c.fetchone()
             endpreis = round(preis[0] * strecke,2)
             c.execute(f'insert into mietvorgang(scooter_ID,kunden_ID,strecke,preis,startzeit) values ({scooterID},{kundenID},{strecke},{endpreis},"{startzeit}")')
             conn.commit()
-            break
+            break #print("\nRental started. Have a safe trip!\n")
         elif bezahlart == "min":
             c.execute(f"select mietpreis_zeit from escooter where scooter_ID = {scooterID}")
             preis = c.fetchone()
@@ -110,9 +112,9 @@ def neuerMietvorgang():
             endpreis = round(preis[0] * zeit,2)
             c.execute(f'insert into mietvorgang(scooter_ID,kunden_ID,preis,startzeit) values ({scooterID},{kundenID},{endpreis},"{startzeit}")')
             conn.commit()
-            break
+            break #print("\nRental started. Have a safe trip!\n")
         else:
-            print("Ungültige Eingabe")
+            print("Invalid entry. Please try again.")
 
 # Alle Mietvorgänge aus der Datenbank ausgeben
 def mietvorgängeAusgeben():
@@ -130,17 +132,17 @@ def mietvorgängeAusgeben():
 
 # Schleife zum abfragen aller vom User gewünschten Eingaben
 while True:
-    print('''Was möchtest du machen?
-              Fahrpreis berechnen - 1                
-              Neuen Kunden anlegen - 2
-              Neuen Escooter anlegen - 3
-              Neuen Mietvorgang anlegen - 4
-              Beenden - 5''')
+    print('''Welcome to Scooteq! What would you like to do? Please input the corresponding number: 
+              Calculate fare - 1                
+              Add a new customer - 2
+              Add a new scooter - 3
+              Start a new rental - 4
+              End program - 5''') #6,7 noch hinzufügen
     x = input()
     if x == "1":
         print(f"{fahrpreisBerechnen()}€")
     elif x == "2":
-        neuerEscooterKonsole()
+        neuerKundeKonsole()
     elif x == "3":
         neuerEscooterKonsole()
     elif x == "4":
@@ -153,7 +155,7 @@ while True:
         kundenAusgeben()
         escooterAusgeben()
     else:
-        print("Ungültige Eingabe")
+        print("Invalid entry. Please try again.")
 
 # Ab hier random Befehle zum Testen von Dingen, nicht direkt relevant
 
