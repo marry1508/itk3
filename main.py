@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import *
 
 # Variablen definieren
-MYSQL_ROOT_PASSWORD="root" ########PASS ÄNDERN
+MYSQL_ROOT_PASSWORD="passwort" ########PASS ÄNDERN
 MYSQL_DATABASE="scootech"
 MYSQL_USER="root"
 HOST='localhost'
@@ -38,20 +38,22 @@ def kundenAusgeben():
         print(f"KundenID: {row[0]}  Name: {row[1]} {row[2]}")
     print()
 
-
+def neuesterKundeID():
+    c.execute("select kunden_ID from kunde order by kunden_ID desc limit 1;")
+    ID = c.fetchone()
+    return ID[0]
 
 
 # Einen neuen Escooter in der Datenbank anlegen
-def neuerEscooter(standort,mietpreis_strecke,mietpreis_zeit):
-    c.execute(f'insert into escooter (standort,mietpreis_strecke,mietpreis_zeit) values ("{standort}",{mietpreis_strecke},{mietpreis_zeit});')
+def neuerEscooter(standort,mietpreis):
+    c.execute(f'insert into escooter (standort,mietpreis) values ("{standort}",{mietpreis});')
     conn.commit()
 
 # Einen neuen Escooter mit Eingaben aus der Konsole anlegen
 def neuerEscooterKonsole():
     standort = input("Where is the scooter located? Input the city name: ") #viell. noch dynamisch die Städte anzeigen
-    mietpreis_strecke = input("Price per Kilometer? In EUR: ")
-    mietpreis_zeit = input("Price per Minute? In EUR: ")
-    neuerEscooter(standort,mietpreis_strecke,mietpreis_zeit)
+    mietpreis = input("Price per Minute? In EUR: ")
+    neuerEscooter(standort,mietpreis)
     print("\nNew scooter added!\n")
 
 # Alle Escootereinträge aus der Datenbank ausgeben
@@ -64,31 +66,66 @@ def escooterAusgeben():
 
     # Daten ausgeben
     for row in rows:
-        print(f"ScooterID: {row[0]}  Standort: {row[1]}  Preis pro Minute: {row[2]}€  Preis pro km: {row[3]}€")
+        print(f"ScooterID: {row[0]}  Standort: {row[1]}  Preis : {row[2]}€")
     print()
 
 
 def fahrpreisBerechnen():
     scooterID = input("Input ScooterID: ")
-    while True:
-        bezahlart = input("Kilometer (km) or minute (min) price? ")
-        if bezahlart == "km":
-            c.execute(f"select mietpreis_strecke from escooter where scooter_ID = {scooterID}")
-            preis = c.fetchone()
-            strecke = Decimal(input("How far are you traveling? Please input in km or min as previously selected: "))
-            endpreis = round(preis[0] * strecke,2)
-            return endpreis
-        elif bezahlart == "min":
-            c.execute(f"select mietpreis_zeit from escooter where scooter_ID = {scooterID}")
-            preis = c.fetchone()
-            zeit = Decimal(input("How long would you like to rent the scooter for? "))
-            endpreis = round(preis[0] * zeit,2)
-            return endpreis
-        else:
-            print("Invalid entry. Please try again.")
+    c.execute(f"select mietpreis from escooter where scooter_ID = {scooterID}")
+    preis = c.fetchone()
+    zeit = Decimal(input("How long would you like to rent the scooter for? "))
+    return round(preis[0] * zeit,2)
 
-# Einen neuen Mietvorgang in der Datenbank anlegen
 def neuerMietvorgang():
+    c.execute("Select kunden_ID from kunde")
+    alleIDs = c.fetchall()
+    kundenIDs = []
+    for ID in alleIDs:
+        kundenIDs.append(ID[0])
+    print(kundenIDs)
+    while True:
+        kundenID = int(input("Please input your CustomerID: "))
+        # Kunden ID ist vorhanden
+        if kundenID in kundenIDs:
+            mietvorgangAnlegen(kundenID)
+            print("Mietvorgang angelegt")
+            break
+        else:
+            print("The customer ID is not in our Database. Do you want to create a new User? y/n")
+            x = input()
+            if x == "y":
+                neuerKundeKonsole()
+                mietvorgangAnlegen(neuesterKundeID())
+                break
+
+                
+        
+
+def mietvorgangAnlegen(kundenID):
+    c.execute("Select scooter_ID from escooter")
+    alleIDs = c.fetchall()
+    scooterIDs = []
+    for ID in alleIDs:
+        scooterIDs.append(ID[0])
+    while True:
+        escooterAusgeben()
+        scooterID = int(input("Please input the ScooterID: "))
+        if scooterID in scooterIDs:
+            startzeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            c.execute(f"insert into mietvorgang(scooter_ID,kunden_ID,startzeit,abgeschlossen) values ({scooterID},{kundenID},'{startzeit}',FALSE)")
+            conn.commit()
+            break
+        else:
+            print("ScooterID does not exist, please try again")
+
+            
+
+
+
+#komplett überarbeiten
+# Einen neuen Mietvorgang in der Datenbank anlegen
+def neuerMietvorgangalt():
     scooterID = input("Which scooter would you like to rent? Please input the scooter ID: ")
     kundenID = input("Who is the customer? Please input the customer ID: ")
     # Aktuelles Datum + Uhrzeit in Variable speichern und für Datenbank passend formatieren
@@ -126,7 +163,7 @@ def mietvorgängeAusgeben():
 
     # Daten ausgeben
     for row in rows:
-        print(f"ID: {row[0]}  ScooterID: {row[1]}  KundenID: {row[2]} Name: {row[8]} {row[9]}  Startzeit: {row[3]}  Endzeit: {row[4]}  Strecke: {row[5]}km  Preis: {row[6]}€")
+        print(f"ID: {row[0]}  ScooterID: {row[1]}  KundenID: {row[2]} Name: {row[8]} {row[9]}  Startzeit: {row[3]}  Endzeit: {row[4]}Preis: {row[5]}€")
 
 
 
