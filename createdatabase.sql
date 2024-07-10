@@ -23,6 +23,7 @@ create table mietvorgang (
     startzeit			datetime,
     endzeit				datetime,
     preis				decimal(10,2),
+    abgeschlossen		boolean,
     primary key (mietvorgang_ID),
     foreign key (scooter_ID) references escooter (scooter_ID),
     foreign key (kunden_ID) references kunde (kunden_ID)
