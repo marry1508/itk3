@@ -77,6 +77,64 @@ def alleKundenIDsListe():
     return kundenIDs
 
 
+# Ändert den Vornamen des Aktiven Benutzers
+def vornamenAnpassen():
+    clear()
+    firstname = input("Please enter your new first name: ")
+    clear()
+    print(f"Is the name {firstname} correct? y/n")
+    x  = input()
+    if x == "y":
+        c.execute(f"update kunde set vorname = '{firstname}' where kunden_ID = {kundennummer}")
+        conn.commit()
+        clear()
+        print("First name updated!")
+        warten()
+    else:
+        clear()
+        print("Update cancelled.")
+        warten()
+
+
+# Ändert den Nachnamen des aktiven Benutzers
+def nachnamenAnpassen():
+    clear()
+    lastname = input("Please enter your new last name: ")
+    clear()
+    print(f"Is the name {lastname} correct? y/n")
+    x  = input()
+    if x == "y":
+        c.execute(f"update kunde set nachname = '{lastname}' where kunden_ID = {kundennummer}")
+        conn.commit()
+        clear()
+        print("Last name updated!")
+        warten()
+    else:
+        clear()
+        print("Update cancelled.")
+        warten()
+
+
+# Ändert das Passwort des aktiven Benutzers
+def passwordAnpassen():
+    clear()
+    c.execute(f"select passwort from kunde where kunden_ID = {kundennummer}")
+    passwortDB = c.fetchone()
+    passwort = getpass("Please enter your password before you can continue")
+    if passwort == passwortDB[0]:
+        clear()
+        newPasswort = getpass("Please enter your new password: ")
+        newPasswort2 = getpass("Please enter your new password again: ")
+        if newPasswort == newPasswort2:
+            c.execute(f"update kunde set passwort = '{newPasswort}' where kunden_ID = {kundennummer}")
+            conn.commit()
+            clear()
+            print("Password updated!")
+            warten()
+        
+
+
+
 # Gibt den Namen des aktiven Users aus der Datenbank aus
 def nameAusDatenbank():
     # Vor und Nachame des aktiven Users aus Datenbank abfragen
@@ -374,6 +432,7 @@ What would you like to do? Please input the corresponding number:
     Show your active rentals - 3
     Show past rentals - 4
     Calculate fare - 5
+    Account settings - 6
     Log out - x""")
                 # Menuauswahl vom User abfragen
                 y = input()
@@ -397,6 +456,25 @@ What would you like to do? Please input the corresponding number:
                 if y == "5":
                     fahrpreisberechnen()
                     warten()
+                if y == "6":
+                    while True:
+                        clear()
+                        print("""Account settings
+What would you like to do? Please input the corresponding number: 
+    Change first name - 1
+    Change last name - 2
+    Change password - 3
+    Back - x""")
+                        z = input()
+                        if z == "1":
+                            vornamenAnpassen()
+                        if z == "2":
+                            nachnamenAnpassen()
+                        if z == "3":
+                            passwordAnpassen()
+                        if z == "x":
+                            clear()
+                            break
                 # Loggt den aktiven User aus
                 if y == "x":
                     kundennummer = 0
