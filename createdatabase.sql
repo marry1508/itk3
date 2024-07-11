@@ -13,6 +13,7 @@ create table kunde (
 	kunden_ID			integer auto_increment not null,
     vorname				varchar(50),
     nachname			varchar(50),
+    passwort            varchar(50),
     primary key (kunden_ID)
 );
 

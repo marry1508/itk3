@@ -6,10 +6,10 @@ insert into escooter (standort,mietpreis) values ("Berlin",0.40);
 
 insert into escooter (standort,mietpreis) values ("Bayern",0.70);
 
-insert into kunde (vorname,nachname) values ("Hans-Peter","Wurst");
+insert into kunde (vorname,nachname,passwort) values ("Hans-Peter","Wurst","123");
 
-insert into kunde (vorname,nachname) values ("Max","Mustermann");
+insert into kunde (vorname,nachname,passwort) values ("Max","Mustermann","passwort");
 
-insert into kunde (vorname,nachname) values ("Mohammed","Etwas");
+insert into kunde (vorname,nachname,passwort) values ("Mohammed","Etwas","qwertz");
 
 commit work;

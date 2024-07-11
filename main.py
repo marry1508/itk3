@@ -1,12 +1,14 @@
 import mysql.connector 
 from datetime import datetime
 from decimal import *
+from getpass import getpass
 
 # Variablen definieren
 MYSQL_ROOT_PASSWORD="passwort" ########PASS ÄNDERN
 MYSQL_DATABASE="scootech"
 MYSQL_USER="root"
 HOST='localhost'
+kundennummer = 0
 
 # Verbindung zur Datenbank herstellen
 conn = mysql.connector.connect(user=MYSQL_USER, password=MYSQL_ROOT_PASSWORD,
@@ -14,15 +16,16 @@ conn = mysql.connector.connect(user=MYSQL_USER, password=MYSQL_ROOT_PASSWORD,
 c = conn.cursor()
 
 # Einen neuen Kunden in der Datenbank anlegen
-def neuerKunde(vorname,nachname):
-    c.execute(f'insert into kunde (vorname,nachname) values ("{vorname}","{nachname}");')
+def neuerKunde(vorname,nachname,passwort):
+    c.execute(f'insert into kunde (vorname,nachname,passwort) values ("{vorname}","{nachname}","{passwort}");')
     conn.commit()
 
 # Einen neuen Kunden mit Eingaben aus der Konsole anlegen
 def neuerKundeKonsole():
     vorname = input("What is your first name? ")
     nachname = input("What is your last name? ")
-    neuerKunde(vorname,nachname)
+    passwort = getpass("Input your Password: ")
+    neuerKunde(vorname,nachname,passwort)
     print("\nNew customer created!\n")
 
 # Alle Kundeneinträge aus der Datenbank ausgeben
@@ -43,6 +46,21 @@ def neuesterKundeID():
     c.execute("select kunden_ID from kunde order by kunden_ID desc limit 1;")
     ID = c.fetchone()
     return ID[0]
+
+# Gibt alle KundenIDs als Liste aus
+def alleKundenIDsListe():
+    c.execute("Select kunden_ID from kunde")
+    alleIDs = c.fetchall()
+    kundenIDs = []
+    for ID in alleIDs:
+        kundenIDs.append(ID[0])
+    return kundenIDs
+
+def nameAusDatenbank():
+    c.execute(f"select vorname,nachname from kunde where kunden_ID = {kundennummer};")
+    name = c.fetchone()
+    name = name[0] + " " + name[1]
+    return name
 
 
 # Einen neuen Escooter in der Datenbank anlegen
@@ -106,6 +124,8 @@ def fahrpreisBerechnenAlt():
     zeit = Decimal(input("How long would you like to rent the scooter for? "))
     return round(preis[0] * zeit,2)
 
+
+# Bruahcen wir wahrschienlich nicht mehr
 # Startet das anlegen eines neuen Mietvorgangs
 def neuerMietvorgang():
     c.execute("Select kunden_ID from kunde")
@@ -113,7 +133,6 @@ def neuerMietvorgang():
     kundenIDs = []
     for ID in alleIDs:
         kundenIDs.append(ID[0])
-    print(kundenIDs)
     while True:
         kundenID = int(input("Please input your CustomerID: "))
         # Kunden ID ist vorhanden
@@ -131,14 +150,14 @@ def neuerMietvorgang():
 
 
 # Legt einen neuen Mietvorgang in der Datenbank an      
-def mietvorgangAnlegen(kundenID):
+def mietvorgangAnlegen():
     alleIDs = alleScooterIDsListe()
     while True:
         escooterAusgeben()
         scooterID = int(input("Please input the ScooterID: "))
         if scooterID in alleIDs:
             startzeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            c.execute(f"insert into mietvorgang(scooter_ID,kunden_ID,startzeit,abgeschlossen) values ({scooterID},{kundenID},'{startzeit}',FALSE)")
+            c.execute(f"insert into mietvorgang(scooter_ID,kunden_ID,startzeit,abgeschlossen) values ({scooterID},{kundennummer},'{startzeit}',FALSE)")
             conn.commit()
             break
         else:
@@ -160,21 +179,57 @@ def mietvorgangAbschließen():
     conn.commit()
 
 # Zeig alle aktiven Mietvorgänge an
-def aktiveMietvorgängeAusgeben():
+def alleAktiveMietvorgängeAusgeben():
     c.execute(f"select * from mietvorgang join kunde on kunde.kunden_ID = mietvorgang.kunden_ID where mietvorgang.abgeschlossen = FALSE order by mietvorgang.mietvorgang_ID asc")
     rows = c.fetchall()
     for row in rows:
         print(f"ID: {row[0]}  ScooterID: {row[1]}  KundenID: {row[2]} Name: {row[8]} {row[9]}  Startzeit: {row[3]}")
 
+# Zeigt alle aktiven Mietvorgänge vom aktiven User an
+def aktiveMietvorgängeAusgeben():
+    c.execute(f"select * from mietvorgang join kunde on kunde.kunden_ID = mietvorgang.kunden_ID where mietvorgang.abgeschlossen = FALSE and kunde.kunden_ID = {kundennummer} order by mietvorgang.mietvorgang_ID asc")
+    rows = c.fetchall()
+    for row in rows:
+        print(f"ID: {row[0]}  ScooterID: {row[1]}  Startzeit: {row[3]}")
+
 # Zeig alle abgeschlossenen Mietvorgänge an
-def abgeschlosseneMietvorgängeAusgeben():
+def alleAbgeschlosseneMietvorgängeAusgeben():
     c.execute(f"select * from mietvorgang join kunde on kunde.kunden_ID = mietvorgang.kunden_ID where mietvorgang.abgeschlossen = TRUE order by mietvorgang.mietvorgang_ID asc")
     rows = c.fetchall()
     for row in rows:
         print(f"ID: {row[0]}  ScooterID: {row[1]}  KundenID: {row[2]} Name: {row[8]} {row[9]}  Startzeit: {row[3]} Endzeit: {row[4]} Preis: {row[5]}€")
 
+# Zeigt alle abeschlossenen Mietvorgänge vom aktiven User an
+def abgeschlosseneMietvorgängeAusgeben():
+    c.execute(f"select * from mietvorgang join kunde on kunde.kunden_ID = mietvorgang.kunden_ID where mietvorgang.abgeschlossen = TRUE and kunde.kunden_ID = {kundennummer} order by mietvorgang.mietvorgang_ID asc")
+    rows = c.fetchall()
+    for row in rows:
+        print(f"ID: {row[0]}  ScooterID: {row[1]}  Startzeit: {row[3]} Endzeit: {row[4]} Preis: {row[5]}€")
 
+# Loggt den User ein
+def einloggen():
+    IDs = alleKundenIDsListe()
+    kundenID = int(input("Please enter your Customer ID to Log in: "))
+    if kundenID in IDs:
+        #passwort abfragen
+        c.execute(f"select passwort from kunde where kunden_ID = {kundenID}")
+        passwortDB = c.fetchone()
+        passwort = getpass()
+        if passwort == passwortDB[0]:
+            print("erfolgreich eingeloggt")
+            global kundennummer
+            kundennummer = kundenID
+            return True
+        else:
+            print("Invalid Password")
+            return False
+    else:
+        print("There is no Customer with this ID. Do you want to create a new Account? y/n")
+        if input() == "y":
+            neuerKundeKonsole()
+        return False
 
+""""
 # Schleife zum abfragen aller vom User gewünschten Eingaben
 while True:
     print('''Welcome to Scooteq! What would you like to do? Please input the corresponding number: 
@@ -202,12 +257,56 @@ while True:
         escooterAusgeben()
     elif x == "8":
         mietvorgangAbschließen()
+    elif x == "9":
+        einloggen()
+        print(kundennummer)
     else:
         print("Invalid entry. Please try again.")
+"""
+
+while True:
+    print("""Willkommen bei scootech
+          Einloggen 1
+          neuer account 2
+          admin shit 3
+          beenden 4""")
+    x = input()
+    if x == "1":
+        login = einloggen()
+        if login == True:
+            print(f"Hallo {nameAusDatenbank()}")
+            while True:
+                print("Was willst du tun?")
+                y = input()
+                if y == "1":
+                    mietvorgangAnlegen()
+                if y == "2":
+                    mietvorgangAbschließen()
+                if y == "3":
+                    aktiveMietvorgängeAusgeben()
+                if y == "4":
+                    abgeschlosseneMietvorgängeAusgeben()
+                if y == "5":
+                    fahrpreisberechnen()
+                # ausloggen
+                if y == "6":
+                    break
+        # noch mehr shit muss passieren danach
+    elif x == "2":
+        neuerKundeKonsole()
+    elif x == "3":
+        # admin menu
+        neuerEscooterKonsole()
+    elif x == "4":
+        break
+
+
+
+
 
 # Ab hier random Befehle zum Testen von Dingen, nicht direkt relevant
 
-print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))    
+#print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))    
 
 #neuerMietvorgang()
 #mietvorgängeAusgeben()
