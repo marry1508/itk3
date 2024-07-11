@@ -1,4 +1,4 @@
-drop database scootech;
+drop database if exists scootech;
 create database scootech;
 use scootech;
 
