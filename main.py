@@ -284,41 +284,8 @@ def warten():
 # Leert die console
 def clear():
     os.system('cls')
-""""
-# Schleife zum abfragen aller vom User gewünschten Eingaben
-while True:
-    print('''Welcome to Scooteq! What would you like to do? 
-Please input the corresponding number: 
-    Calculate fare - 1                
-    Add a new customer - 2
-    Add a new scooter - 3
-    Start a new rental - 4
-    End program - 5''') #6,7 noch hinzufügen
-    x = input()
-    if x == "1":
-        print(f"{fahrpreisBerechnenAlt()}€")
-    elif x == "2":
-        neuerKundeKonsole()
-    elif x == "3":
-        neuerEscooterKonsole()
-    elif x == "4":
-        neuerMietvorgang()
-    elif x == "5":
-        break
-    elif x == "6":
-        aktiveMietvorgängeAusgeben()
-        abgeschlosseneMietvorgängeAusgeben()
-    elif x == "7":
-        kundenAusgeben()
-        escooterAusgeben()
-    elif x == "8":
-        mietvorgangAbschließen()
-    elif x == "9":
-        einloggen()
-        print(kundennummer)
-    else:
-        print("Invalid entry. Please try again.")
-"""
+
+
 clear()
 while True:
     print("""Welcome to Scooteq! 
@@ -400,24 +367,6 @@ Please input the corresponding number:
     elif x == "4":
         break
 
-
-
-
-
-
-
-# Ab hier random Befehle zum Testen von Dingen, nicht direkt relevant
-
-#print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))    
-
-#neuerMietvorgang()
-#mietvorgängeAusgeben()
-#neuerEscooterKonsole()
-#neuerKundeKonsole()
-#neuerEscooter("Altona",0.30,4.50)
-#neuerKunde("Luigi","Mario")
-#escooterAusgeben()
-#kundenAusgeben()
 
 # Verbindung zur Datenbank schließen
 conn.close()
