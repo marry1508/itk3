@@ -27,10 +27,17 @@ def neuerKundeKonsole():
     vorname = input("What is your first name? ")
     nachname = input("What is your last name? ")
     passwort = getpass("Input your Password: ")
-    neuerKunde(vorname,nachname,passwort)
-    clear()
-    print("New account created!")
-    print(f"Your customer ID is: {neuesterKundeID()}")
+    print("Would you like to create this account? y/n")
+    if input() == "y":
+        clear()
+        neuerKunde(vorname,nachname,passwort)
+        print("New account created!")
+        print(f"Your customer ID is: {neuesterKundeID()}")
+        warten()
+    else:
+        clear()
+        print("Account creation cancelled!")
+        warten()
 
 # Alle Kundeneinträge aus der Datenbank ausgeben
 def kundenAusgeben():
@@ -75,10 +82,19 @@ def neuerEscooter(standort,mietpreis):
 
 # Einen neuen Escooter mit Eingaben aus der Konsole anlegen
 def neuerEscooterKonsole():
-    standort = input("Where is the scooter located? Input the city name: ") #vllt. noch dynamisch die Städte anzeigen
+    print("These are our current scooters:")
+    escooterAusgeben()
+    standort = input("Where is the scooter located? Input the city name: ") 
     mietpreis = input("Price per Minute? In EUR: ")
-    neuerEscooter(standort,mietpreis)
-    print("\nNew scooter added!\n")
+    print("Would you like to create this scooter? y/n")
+    if input() == "y":
+        clear()
+        neuerEscooter(standort,mietpreis)
+        print("New scooter added!")
+    else:
+        clear()
+        print("Scooter creation cancelled!")
+
 
 # Zeigt alle Escooter aus der Datenbank auf der Konsole an
 def escooterAusgeben():
@@ -110,7 +126,7 @@ def fahrpreisberechnen():
         # dem Benutzer alle vorhanden Scooter auf der Konsole anzeigen
         escooterAusgeben()
         # den Benutzer fragen, welche Scooter ID gewünscht ist
-        scooterID = input("Please input the ScooterID: ")
+        scooterID = input("Please input the ScooterID or press 'x' to cancel: ")
         # Überprüfen, ob vom User eingegebene ID in der Liste aller IDs vorhanden ist
         if scooterID in alleIDs:
             # Wenn ID vorhanden ist, dann mit ID den Mietpreis vom entsprechenden Scooter aus Datenbank beziehen
@@ -118,51 +134,34 @@ def fahrpreisberechnen():
             fahrpreis = c.fetchone()
             # Benutzer fragen, wie lange der Scooter genutzt werden soll
             while True:
+                clear()
                 try:
-                    fahrzeit = int(input("How long would you like to use the scooter for? (in minutes): "))
+                    fahrzeit = input("How long would you like to use the scooter for? (in minutes) or press 'x' to cancel: ")
+                    if fahrzeit == "x":
+                        clear()
+                        print("Calculation cancelled!")
+                        return
+                    fahrzeit = int(fahrzeit)
+                    clear()
                     break
                 except:
+                    clear()
                     print("Please enter a valid number")
+                    warten()
             # Endpreis berechnen und ausgeben
             preis = fahrpreis[0] * fahrzeit
-            print(f"{preis}€")
+            print(f"Your ride total for {fahrzeit} minutes would be {preis}€")
             return
             # Wenn ID nicht vorhanden ist, Fehlermeldung ausgeben
+        elif scooterID == "x":
+            clear()
+            print("Calculation cancelled!")
+            return        
         else:
+            clear()
             print("ScooterID does not exist, please try again")
+            warten()
 
-
-
-def fahrpreisBerechnenAlt():
-    scooterID = input("Input ScooterID: ")
-    c.execute(f"select mietpreis from escooter where scooter_ID = {scooterID}")
-    preis = c.fetchone()
-    zeit = Decimal(input("How long would you like to rent the scooter for? "))
-    return round(preis[0] * zeit,2)
-
-
-# Bruachen wir wahrscheinlich nicht mehr
-# Startet das anlegen eines neuen Mietvorgangs
-def neuerMietvorgang():
-    c.execute("Select kunden_ID from kunde")
-    alleIDs = c.fetchall()
-    kundenIDs = []
-    for ID in alleIDs:
-        kundenIDs.append(ID[0])
-    while True:
-        kundenID = int(input("Please input your CustomerID: "))
-        # Kunden ID ist vorhanden
-        if kundenID in kundenIDs:
-            mietvorgangAnlegen(kundenID)
-            print("Ride started. Thank you for using Scooteq!")
-            break
-        else:
-            print("The customer ID is not in our Database. Would you like to create a new User? y/n: ")
-            x = input()
-            if x == "y":
-                neuerKundeKonsole()
-                mietvorgangAnlegen(neuesterKundeID())
-                break
 
 
 # Legt einen neuen Mietvorgang in der Datenbank an      
@@ -171,17 +170,24 @@ def mietvorgangAnlegen():
     while True:
         clear()
         escooterAusgeben()
-        scooterID = input("Please input the ScooterID: ")
+        scooterID = input("Please input the ScooterID or type 'x' to cancel: ")
         if scooterID in alleIDs:
             startzeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             c.execute(f"insert into mietvorgang(scooter_ID,kunden_ID,startzeit,abgeschlossen) values ({scooterID},{kundennummer},'{startzeit}',FALSE)")
             conn.commit()
-
             clear()
             print(f"New rental started. Your rental ID is: {neuesterMietvorgangID()}")
+            warten()
+            break
+        elif scooterID == "x":
+            clear()
+            print("Rental cancelled.")
+            warten()
             break
         else:
+            clear()
             print("ScooterID does not exist, please try again")
+            warten()
 
 
 # Schließt einen Mietvorgang ab und berechnet den dazugehörigen Preis
@@ -190,7 +196,7 @@ def mietvorgangAbschließen():
         clear()
         print("These are your currently active rentals:")
         aktiveMietvorgängeAusgeben()
-        vorgangs_ID = input('Input your rental number or type "x" to cancel: ')
+        vorgangs_ID = input("Input your rental number or type 'x' to cancel: ")
         if vorgangs_ID in alleAktivenMietvorgangsIDsUser():
             c.execute(f"select startzeit from mietvorgang where mietvorgang_ID = {vorgangs_ID}")
             startzeit = c.fetchone()
@@ -293,7 +299,7 @@ What would you like to do? Please input the corresponding number:
     Log in to your account -  1
     Create a new account - 2
     Enter the administration console - 3
-    End the program - 4""")
+    End the program - x""")
     x = input()
     clear()
     if x == "1":
@@ -308,12 +314,11 @@ What would you like to do? Please input the corresponding number:
     Show your active rentals - 3
     Show past rentals - 4
     Calculate fare - 5
-    Log out - 6""")
+    Log out - x""")
                 y = input()
                 clear()
                 if y == "1":
                     mietvorgangAnlegen()
-                    warten()
                 if y == "2":
                     mietvorgangAbschließen()
                     clear()
@@ -327,11 +332,10 @@ What would you like to do? Please input the corresponding number:
                     fahrpreisberechnen()
                     warten()
                 # ausloggen
-                if y == "6":
+                if y == "x":
                     break
     elif x == "2":
         neuerKundeKonsole()
-        warten()
     elif x == "3":
         if getpass() == ADMINPW:
             while True:
@@ -343,7 +347,7 @@ Please input the corresponding number:
     Show all Users - 3
     Show all active rentals - 4
     Show all finished rentals - 5
-    Leave administration console - 6
+    Leave administration console - x
                       """)
                 y = input()
                 clear()
@@ -362,9 +366,9 @@ Please input the corresponding number:
                 if y == "5":
                     alleAbgeschlosseneMietvorgängeAusgeben()
                     warten()
-                if y == "6":
+                if y == "x":
                     break
-    elif x == "4":
+    elif x == "x":
         break
 
 
