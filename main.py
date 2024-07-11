@@ -84,13 +84,13 @@ def neuerEscooter(standort,mietpreis):
 def neuerEscooterKonsole():
     print("These are our current scooters:")
     escooterAusgeben()
-    standort = input("Where is the scooter located? Input the city name: ") 
-    mietpreis = input("Price per Minute? In EUR: ")
+    standort = input("Where is the scooter located? Input the district: ") 
+    mietpreis = input("Price per minute? In EUR: ")
     print("Would you like to create this scooter? y/n")
     if input() == "y":
         clear()
         neuerEscooter(standort,mietpreis)
-        print("New scooter added!")
+        print("New scooter added")
     else:
         clear()
         print("Scooter creation cancelled!")
@@ -126,7 +126,7 @@ def fahrpreisberechnen():
         # dem Benutzer alle vorhanden Scooter auf der Konsole anzeigen
         escooterAusgeben()
         # den Benutzer fragen, welche Scooter ID gewünscht ist
-        scooterID = input("Please input the ScooterID or press 'x' to cancel: ")
+        scooterID = input("Please input the scooter ID or press 'x' to cancel: ")
         # Überprüfen, ob vom User eingegebene ID in der Liste aller IDs vorhanden ist
         if scooterID in alleIDs:
             # Wenn ID vorhanden ist, dann mit ID den Mietpreis vom entsprechenden Scooter aus Datenbank beziehen
@@ -186,7 +186,7 @@ def mietvorgangAnlegen():
             break
         else:
             clear()
-            print("ScooterID does not exist, please try again")
+            print("ScooterID does not exist, please try again!")
             warten()
 
 
@@ -213,7 +213,7 @@ def mietvorgangAbschließen():
             break
         else:
             clear()
-            print("Invald Input, please try again")
+            print("Invald Input, please try again!")
             warten()
 
 # Zeig alle aktiven Mietvorgänge an
@@ -221,14 +221,14 @@ def alleAktiveMietvorgängeAusgeben():
     c.execute(f"select * from mietvorgang join kunde on kunde.kunden_ID = mietvorgang.kunden_ID join escooter on escooter.scooter_ID = mietvorgang.scooter_ID where mietvorgang.abgeschlossen = FALSE order by mietvorgang.mietvorgang_ID asc")
     rows = c.fetchall()
     for row in rows:
-        print(f"ID: {row[0]}  Standort: {row[12]}  KundenID: {row[2]} Name: {row[8]} {row[9]}  Startzeit: {row[3]}")
+        print(f"ID: {row[0]}  Location: {row[12]}  Customer ID: {row[2]} Name: {row[8]} {row[9]}  Start time: {row[3]}")
 
 # Zeigt alle aktiven Mietvorgänge vom aktiven User an
 def aktiveMietvorgängeAusgeben():
     c.execute(f"select * from mietvorgang join kunde on kunde.kunden_ID = mietvorgang.kunden_ID join escooter on escooter.scooter_ID = mietvorgang.scooter_ID where mietvorgang.abgeschlossen = FALSE and kunde.kunden_ID = {kundennummer} order by mietvorgang.mietvorgang_ID asc")
     rows = c.fetchall()
     for row in rows:
-        print(f"ID: {row[0]}  Standort: {row[12]}  Startzeit: {row[3]}")
+        print(f"ID: {row[0]}  Location: {row[12]}  Start time: {row[3]}")
 
 # Gibt alle aktiven Mietvorgänge eines Users als Liste aus
 def alleAktivenMietvorgangsIDsUser():
@@ -244,14 +244,14 @@ def alleAbgeschlosseneMietvorgängeAusgeben():
     c.execute(f"select * from mietvorgang join kunde on kunde.kunden_ID = mietvorgang.kunden_ID join escooter on escooter.scooter_ID = mietvorgang.scooter_ID where mietvorgang.abgeschlossen = TRUE order by mietvorgang.mietvorgang_ID asc")
     rows = c.fetchall()
     for row in rows:
-        print(f"ID: {row[0]}  Standort: {row[12]}  KundenID: {row[2]} Name: {row[8]} {row[9]}  Startzeit: {row[3]} Endzeit: {row[4]} Preis: {row[5]}€")
+        print(f"ID: {row[0]}  Location: {row[12]}  Customer ID: {row[2]} Name: {row[8]} {row[9]}  Start time: {row[3]} End time: {row[4]} Price: {row[5]}€")
 
 # Zeigt alle abeschlossenen Mietvorgänge vom aktiven User an
 def abgeschlosseneMietvorgängeAusgeben():
     c.execute(f"select * from mietvorgang join kunde on kunde.kunden_ID = mietvorgang.kunden_ID join escooter on escooter.scooter_ID = mietvorgang.scooter_ID where mietvorgang.abgeschlossen = TRUE and kunde.kunden_ID = {kundennummer} order by mietvorgang.mietvorgang_ID asc")
     rows = c.fetchall()
     for row in rows:
-        print(f"ID: {row[0]}  Standort: {row[12]}  Startzeit: {row[3]} Endzeit: {row[4]} Preis: {row[5]}€")
+        print(f"ID: {row[0]}  Location: {row[12]}  Start time: {row[3]} End time: {row[4]} Price: {row[5]}€")
 
 # Gibt die Mietvorgang_ID des zuletzt angelegten Mietvorgangs zurück
 def neuesterMietvorgangID():
@@ -262,7 +262,7 @@ def neuesterMietvorgangID():
 # Loggt den User ein
 def einloggen():
     IDs = alleKundenIDsListe()
-    kundenID = input("Please enter your Customer ID to Log in: ")
+    kundenID = input("Please enter your customer ID to Log in: ")
     if kundenID in IDs:
         #passwort abfragen
         c.execute(f"select passwort from kunde where kunden_ID = {kundenID}")
@@ -273,10 +273,10 @@ def einloggen():
             kundennummer = kundenID
             return True
         else:
-            print("Invalid Password.")
+            print("Invalid password!")
             return False
     else:
-        print("There is no Customer with this ID. Would you like to create a new Account? y/n: ")
+        print("There is no customer with this ID. Would you like to create a new account? y/n: ")
         if input() == "y":
             clear()
             neuerKundeKonsole()
@@ -309,7 +309,7 @@ What would you like to do? Please input the corresponding number:
             while True:
                 print(f"""Welcome to Scooteq, {nameAusDatenbank()}!
 What would you like to do? Please input the corresponding number: 
-    Start a new Rental - 1
+    Start a new rental - 1
     End an active rental - 2
     Show your active rentals - 3
     Show past rentals - 4
@@ -342,9 +342,9 @@ What would you like to do? Please input the corresponding number:
                 clear()
                 print("""Hello boss! What would you like to do? 
 Please input the corresponding number: 
-    Add a new Scooter - 1
-    Show all Scooters - 2
-    Show all Users - 3
+    Add a new scooter - 1
+    Show all scooters - 2
+    Show all users - 3
     Show all active rentals - 4
     Show all finished rentals - 5
     Leave administration console - x
