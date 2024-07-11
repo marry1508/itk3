@@ -404,28 +404,44 @@ def clear():
     os.system('cls')
 
 
-# Programm fängt ab hier an
-clear()
-while True:
+# Main menu
+def mainMenu():
+    clear()
+    while True:
     # Schreibt Menu auf die Konsole
-    print("""Welcome to Scooteq! 
+        print("""Welcome to Scooteq! 
 What would you like to do? Please input the corresponding number: 
     Log in to your account -  1
     Create a new account - 2
     Enter the administration console - 3
     End the program - x""")
-    # Menuauswahl von User abfragen
-    x = input()
-    clear()
-    if x == "1":
-        # Login Funktion ausführen
-        login = einloggen()
+        # Menuauswahl von User abfragen
+        x = input()
         clear()
-        # Bei erfolgreichem Login nächstes Menu anzeigen
-        if login == True:
-            while True:
-                # Schreibt nächstes Menu auf die Konsole
-                print(f"""Welcome to Scooteq, {nameAusDatenbank()}!
+        if x == "1":
+            userMenu()
+        # Startet das Anlegen eines neuen Benutzers
+        elif x == "2":
+            neuerKundeKonsole()
+        # Öffnet das Adminmenu
+        elif x == "3":
+            adminMenu()
+        # Beendet die Verbindung zur Datenbank und das Programm
+        elif x == "x":
+            conn.close()
+            break
+
+
+# User Menu
+def userMenu():
+    # Login Funktion ausführen
+    login = einloggen()
+    clear()
+    # Öffnet User Menu bei erfolgreichem Login
+    if login == True:
+        while True:
+            # Schreibt nächstes Menu auf die Konsole
+            print(f"""Welcome to Scooteq, {nameAusDatenbank()}!
 What would you like to do? Please input the corresponding number: 
     Start a new rental - 1
     End an active rental - 2
@@ -434,97 +450,99 @@ What would you like to do? Please input the corresponding number:
     Calculate fare - 5
     Account settings - 6
     Log out - x""")
-                # Menuauswahl vom User abfragen
-                y = input()
+            # Menuauswahl vom User abfragen
+            x = input()
+            clear()
+            # Startet die Anlage eines neuen Mietvorgangs mit dem aktiven Benutzer
+            if x == "1":
+                mietvorgangAnlegen()
+            # Startet des Beenden eines Mietvorgangs mit dem aktiven Benutzer
+            if x == "2":
+                mietvorgangAbschließen()
                 clear()
-                # Startet die Anlage eines neuen Mietvorgangs mit dem aktiven Benutzer
-                if y == "1":
-                    mietvorgangAnlegen()
-                # Startet des Beenden eines Mietvorgangs mit dem aktiven Benutzer
-                if y == "2":
-                    mietvorgangAbschließen()
-                    clear()
-                # Startet das Anzeigen aller aktiven Mietvorgänge des aktiven Benutzers
-                if y == "3":
-                    aktiveMietvorgängeAusgeben()
-                    warten()
-                # Startet das Anzeigen aller abgeschlossenen Mietvorgänge des Benutzers
-                if y == "4":
-                    abgeschlosseneMietvorgängeAusgeben()
-                    warten()
-                # Startet die Berechnung eines Fahrpreises
-                if y == "5":
-                    fahrpreisberechnen()
-                    warten()
-                if y == "6":
-                    while True:
-                        clear()
-                        print("""Account settings
+            # Startet das Anzeigen aller aktiven Mietvorgänge des aktiven Benutzers
+            if x == "3":
+                aktiveMietvorgängeAusgeben()
+                warten()
+            # Startet das Anzeigen aller abgeschlossenen Mietvorgänge des Benutzers
+            if x == "4":
+                abgeschlosseneMietvorgängeAusgeben()
+                warten()
+            # Startet die Berechnung eines Fahrpreises
+            if x == "5":
+                fahrpreisberechnen()
+                warten()
+            if x == "6":
+                accountSettings()
+            # Loggt den aktiven User aus
+            if x == "x":
+                break
+
+
+# Account Settings
+def accountSettings():
+    while True:
+        clear()
+        print("""Account settings
 What would you like to do? Please input the corresponding number: 
     Change first name - 1
     Change last name - 2
     Change password - 3
     Back - x""")
-                        z = input()
-                        if z == "1":
-                            vornamenAnpassen()
-                        if z == "2":
-                            nachnamenAnpassen()
-                        if z == "3":
-                            passwordAnpassen()
-                        if z == "x":
-                            clear()
-                            break
-                # Loggt den aktiven User aus
-                if y == "x":
-                    kundennummer = 0
-                    break
-    # Startet das Anlegen eines neuen Benutzers
-    elif x == "2":
-        neuerKundeKonsole()
-    # Startet die Adminkonsole
-    elif x == "3":
-        # Fragt das Adminpasswort ab
-        if getpass() == ADMINPW:
-            while True:
-                # Zeigt das Menu der Adminkonsole an
-                clear()
-                print("""Hello boss! What would you like to do? 
+        x = input()
+        if x == "1":
+            vornamenAnpassen()
+        if x == "2":
+            nachnamenAnpassen()
+        if x == "3":
+            passwordAnpassen()
+        if x == "x":
+            clear()
+        break
+
+
+# Admin Menu
+def adminMenu():
+    # Fragt das Adminpasswort ab
+    if getpass() == ADMINPW:
+        while True:
+            # Zeigt das Menu der Adminkonsole an
+            clear()
+            print("""Hello boss! What would you like to do? 
 Please input the corresponding number: 
     Add a new scooter - 1
     Show all scooters - 2
     Show all users - 3
     Show all active rentals - 4
     Show all finished rentals - 5
-    Leave administration console - x
-                      """)
-                # Menuauswahl vom User abfragen
-                y = input()
-                clear()
-                # Startet das Anlegen eines neuen Escooters 
-                if y == "1":
-                    neuerEscooterKonsole()
-                    warten()
-                # Startet das Anzeigen einer Liste mit allen Escootern
-                if y == "2":
-                    escooterAusgeben()
-                    warten()
-                # Startet das Anzeigen einer Liste mit allen Useraccounts
-                if y == "3":
-                    kundenAusgeben()
-                    warten()
-                # Startet das Anzeigen einer Liste mit allen aktiven Mietvorgängen
-                if y == "4":
-                    alleAktiveMietvorgängeAusgeben()
-                    warten()
-                # Startet das Anzeigen einer Liste mit allen abgeschlossenen Mietvorgängen
-                if y == "5":
-                    alleAbgeschlosseneMietvorgängeAusgeben()
-                    warten()
-                # Loggt aus der Adminkonsole aus
-                if y == "x":
-                    break
-    # Beendet die Verbindung zur Datenbank und das Programm
-    elif x == "x":
-        conn.close()
-        break
+    Leave administration console - x""")
+            # Menuauswahl vom User abfragen
+            x = input()
+            clear()
+            # Startet das Anlegen eines neuen Escooters 
+            if x == "1":
+                neuerEscooterKonsole()
+                warten()
+            # Startet das Anzeigen einer Liste mit allen Escootern
+            if x == "2":
+                escooterAusgeben()
+                warten()
+            # Startet das Anzeigen einer Liste mit allen Useraccounts
+            if x == "3":
+                kundenAusgeben()
+                warten()
+            # Startet das Anzeigen einer Liste mit allen aktiven Mietvorgängen
+            if x == "4":
+                alleAktiveMietvorgängeAusgeben()
+                warten()
+            # Startet das Anzeigen einer Liste mit allen abgeschlossenen Mietvorgängen
+            if x == "5":
+                alleAbgeschlosseneMietvorgängeAusgeben()
+                warten()
+            # Loggt aus der Adminkonsole aus
+            if x == "x":
+                break
+
+
+# Programm fängt ab hier an
+mainMenu()
