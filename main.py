@@ -4,6 +4,7 @@ from decimal import *
 from getpass import getpass
 import os
 
+
 # Variablen definieren
 MYSQL_ROOT_PASSWORD="passwort" ########PASS ÄNDERN
 MYSQL_DATABASE="scootech"
@@ -79,18 +80,22 @@ def alleKundenIDsListe():
 
 # Ändert den Vornamen des Aktiven Benutzers
 def vornamenAnpassen():
+    # Fragt den neun Vornamen ab
     clear()
     firstname = input("Please enter your new first name: ")
     clear()
+    # Fragt ob der eingebene Vorname korrekt ist
     print(f"Is the name {firstname} correct? y/n")
     x  = input()
     if x == "y":
+        # Aktualisiert den Vornamen in der Datenbank
         c.execute(f"update kunde set vorname = '{firstname}' where kunden_ID = {kundennummer}")
         conn.commit()
         clear()
         print("First name updated!")
         warten()
     else:
+        # Beendet die Namensänderung
         clear()
         print("Update cancelled.")
         warten()
@@ -98,18 +103,22 @@ def vornamenAnpassen():
 
 # Ändert den Nachnamen des aktiven Benutzers
 def nachnamenAnpassen():
+    # Fragt den neuen Nachmen ab
     clear()
     lastname = input("Please enter your new last name: ")
     clear()
+    # Fragt ob der eingegebene Nachname korrekt ist
     print(f"Is the name {lastname} correct? y/n")
     x  = input()
     if x == "y":
+        # Aktualisiert den Nachnamen in der Datenbank
         c.execute(f"update kunde set nachname = '{lastname}' where kunden_ID = {kundennummer}")
         conn.commit()
         clear()
         print("Last name updated!")
         warten()
     else:
+        # Beendet die Namensänderung
         clear()
         print("Update cancelled.")
         warten()
@@ -117,23 +126,29 @@ def nachnamenAnpassen():
 
 # Ändert das Passwort des aktiven Benutzers
 def passwordAnpassen():
+    # Fragt das aktuelle Passwort des Benutzers ab
     clear()
     c.execute(f"select passwort from kunde where kunden_ID = {kundennummer}")
     passwortDB = c.fetchone()
-    passwort = getpass("Please enter your password before you can continue")
+    passwort = getpass("Please enter your password before you can continue: ")
     if passwort == passwortDB[0]:
+        # Wenn korrektes Password eingegeben wurde wird neues Passwort zweimal abgefragt
         clear()
         newPasswort = getpass("Please enter your new password: ")
         newPasswort2 = getpass("Please enter your new password again: ")
+        # Prüfen ob Passwörter übereinstimmen
         if newPasswort == newPasswort2:
+            # Neues Passwort in Datenbank speichern
             c.execute(f"update kunde set passwort = '{newPasswort}' where kunden_ID = {kundennummer}")
             conn.commit()
             clear()
             print("Password updated!")
             warten()
+        # Fehlermeldung wenn Passwörter nicht übereinstimmen
+        else:
+            print("New passwords do not match!")
+            warten()
         
-
-
 
 # Gibt den Namen des aktiven Users aus der Datenbank aus
 def nameAusDatenbank():
@@ -457,25 +472,25 @@ What would you like to do? Please input the corresponding number:
             if x == "1":
                 mietvorgangAnlegen()
             # Startet des Beenden eines Mietvorgangs mit dem aktiven Benutzer
-            if x == "2":
+            elif x == "2":
                 mietvorgangAbschließen()
                 clear()
             # Startet das Anzeigen aller aktiven Mietvorgänge des aktiven Benutzers
-            if x == "3":
+            elif x == "3":
                 aktiveMietvorgängeAusgeben()
                 warten()
             # Startet das Anzeigen aller abgeschlossenen Mietvorgänge des Benutzers
-            if x == "4":
+            elif x == "4":
                 abgeschlosseneMietvorgängeAusgeben()
                 warten()
             # Startet die Berechnung eines Fahrpreises
-            if x == "5":
+            elif x == "5":
                 fahrpreisberechnen()
                 warten()
-            if x == "6":
+            elif x == "6":
                 accountSettings()
             # Loggt den aktiven User aus
-            if x == "x":
+            elif x == "x":
                 break
 
 
@@ -492,13 +507,13 @@ What would you like to do? Please input the corresponding number:
         x = input()
         if x == "1":
             vornamenAnpassen()
-        if x == "2":
+        elif x == "2":
             nachnamenAnpassen()
-        if x == "3":
+        elif x == "3":
             passwordAnpassen()
-        if x == "x":
+        elif x == "x":
             clear()
-        break
+            break
 
 
 # Admin Menu
@@ -524,25 +539,25 @@ Please input the corresponding number:
                 neuerEscooterKonsole()
                 warten()
             # Startet das Anzeigen einer Liste mit allen Escootern
-            if x == "2":
+            elif x == "2":
                 escooterAusgeben()
                 warten()
             # Startet das Anzeigen einer Liste mit allen Useraccounts
-            if x == "3":
+            elif x == "3":
                 kundenAusgeben()
                 warten()
             # Startet das Anzeigen einer Liste mit allen aktiven Mietvorgängen
-            if x == "4":
+            elif x == "4":
                 alleAktiveMietvorgängeAusgeben()
                 warten()
             # Startet das Anzeigen einer Liste mit allen abgeschlossenen Mietvorgängen
-            if x == "5":
+            elif x == "5":
                 alleAbgeschlosseneMietvorgängeAusgeben()
                 warten()
             # Loggt aus der Adminkonsole aus
-            if x == "x":
+            elif x == "x":
                 break
 
 
-# Programm fängt ab hier an
+# Programm fängt ab hier an :)
 mainMenu()
